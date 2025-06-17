@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -12,90 +11,163 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  email    String  @unique
-  name     String
-  password String
-  role     Role    @default(USER)
-  
-  orders   Order[]
-  comments Comment[]
-  
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  orders           Order[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  cart             Cart?
 }
 
 model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
+  id          String   @id @default(cuid())
+  name        String   @unique
   description String?
-  
-  products    Product[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  products Product[]
 }
 
 model Product {
-  id          String  @id @default(cuid())
-  name        String  @unique
+  id          String   @id @default(cuid())
+  name        String   @unique
   description String?
   price       Float
   imageUrl    String?
-  stock       Int     @default(0)
-  
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  
-  orderItems  OrderItem[]
-  comments    Comment[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-model Comment {
-  id      String @id @default(cuid())
-  content String
-  rating  Int    @default(5) // 1-5 yıldız rating
-  
-  userId    String
-  user      User    @relation(fields: [userId], references: [id])
-  
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Relations
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  orderItems OrderItem[]
+  cartItems  CartItem[]
 }
 
 model Order {
-  id     String      @id @default(cuid())
-  total  Float
-  status OrderStatus @default(PENDING)
-  
+  id        String      @id @default(cuid())
+  status    OrderStatus @default(PENDING)
+  total     Float
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
-  user   User   @relation(fields: [userId], references: [id])
-  
-  items OrderItem[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  items  OrderItem[]
 }
 
 model OrderItem {
   id       String @id @default(cuid())
   quantity Int
   price    Float
-  
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id])
-  
+
+  // Relations
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
-  product   Product @relation(fields: [productId], references: [id])
-  
+}
+
+model Cart {
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String   @unique
+  items CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId    String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  @@unique([cartId, productId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  subject   String
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sender     User   @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId   String
+  receiver   User   @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String
+}
+
+model AboutPage {
+  id             String   @id @default(cuid())
+  title          String   @default("Hakkımızda")
+  heroTitle      String   @default("Livkors - Kalite ve Şıklığın Buluştuğu Yer")
+  heroSubtitle   String   @default("2015 yılından beri kaliteli çanta üretiminde öncü firma")
+  storyTitle     String   @default("Hikayemiz")
+  storyContent   String   @default("Livkors, 2015 yılında kaliteli çanta üretimi amacıyla kurulmuştur...")
+  visionTitle    String   @default("Vizyonumuz")
+  visionContent  String   @default("Çanta sektöründe kalite ve tasarım standardlarını belirlemeyi hedefliyoruz...")
+  missionTitle   String   @default("Misyonumuz")
+  missionContent String   @default("Müşterilerimize en kaliteli ürünleri sunarak yaşam kalitelerini artırmak...")
+  phone          String   @default("+90 212 555 0123")
+  email          String   @default("info@livkors.com")
+  address        String   @default("İstanbul, Türkiye")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SiteSettings {
+  id              String   @id @default(cuid())
+  siteName        String   @default("Livkors")
+  siteDescription String   @default("Kaliteli çantalar ve mükemmel müşteri hizmetinde öncü markayız")
+  logoUrl         String?
+  heroTitle       String   @default("Özel Tasarım Çantalar")
+  heroSubtitle    String   @default("Her tarza uygun kaliteli çantalar. Kadın, erkek ve özel koleksiyonlar.")
+  footerText      String   @default("Kaliteli çantalar ve mükemmel müşteri hizmetinde öncü markayız.")
+  socialFacebook  String?
+  socialInstagram String?
+  socialTwitter   String?
+  socialLinkedin  String?
+  metaTitle       String   @default("Livkors - Kaliteli Çantalar")
+  metaDescription String   @default("En kaliteli çantalar, uygun fiyatlar ve hızlı teslimat")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model HeroBanner {
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String?
+  description String?
+  imageUrl    String
+  buttonText  String?
+  buttonLink  String?
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum Role {

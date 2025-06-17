@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #1f2937;
+  --foreground: #f9fafb;
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+  --text-muted: #9ca3af;
+  --accent-blue: #60a5fa;
+  --accent-dark: #3b82f6;
 }
 
 @theme inline {
@@ -14,13 +19,397 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #111827;
+    --foreground: #f8fafc;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --accent-blue: #60a5fa;
+    --accent-dark: #3b82f6;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+/* Modern Typography Hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary) !important;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Elegant Text Colors */
+.text-gray-400 {
+  color: var(--text-muted) !important;
+}
+
+.text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-800 {
+  color: var(--text-primary) !important;
+}
+
+.text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+/* Modern Text Styling */
+p {
+  color: var(--text-secondary) !important;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+li {
+  color: var(--text-secondary) !important;
+  line-height: 1.6;
+}
+
+span {
+  color: inherit;
+}
+
+/* Elegant Links */
+a {
+  color: var(--accent-blue) !important;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent-dark) !important;
+  text-decoration: underline;
+}
+
+/* Modern Buttons */
+button {
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease;
+}
+
+/* Enhanced Navigation */
+nav a {
+  color: var(--text-secondary) !important;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+nav a:hover {
+  color: var(--text-primary) !important;
+}
+
+/* Elegant Form Elements */
+input, textarea, select {
+  color: var(--text-primary) !important;
+  font-weight: 400;
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+label {
+  color: var(--text-primary) !important;
+  font-weight: 500;
+}
+
+/* Dark Card Styling */
+.bg-white {
+  background-color: #374151 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  border-color: #4b5563 !important;
+}
+
+/* Dark Section Backgrounds */
+section {
+  background-color: #1f2937 !important;
+}
+
+.bg-gray-50 {
+  background-color: #374151 !important;
+}
+
+.bg-gray-100 {
+  background-color: #4b5563 !important;
+}
+
+.bg-gray-800 {
+  background-color: #111827 !important;
+}
+
+.bg-gray-900 {
+  background-color: #0f172a !important;
+}
+
+/* Dark Gradient Backgrounds for Cards */
+.bg-gradient-to-br {
+  background: linear-gradient(to bottom right, #374151, #4b5563) !important;
+}
+
+.from-pink-50.to-purple-50 {
+  background: linear-gradient(to bottom right, #4c1d95, #7c2d92) !important;
+}
+
+.from-blue-50.to-indigo-50 {
+  background: linear-gradient(to bottom right, #1e3a8a, #312e81) !important;
+}
+
+.from-emerald-50.to-teal-50 {
+  background: linear-gradient(to bottom right, #064e3b, #134e4a) !important;
+}
+
+.from-orange-50.to-yellow-50 {
+  background: linear-gradient(to bottom right, #9a3412, #a16207) !important;
+}
+
+.from-purple-50.to-pink-50 {
+  background: linear-gradient(to bottom right, #581c87, #831843) !important;
+}
+
+.from-gray-50.to-slate-50 {
+  background: linear-gradient(to bottom right, #374151, #475569) !important;
+}
+
+.from-amber-50.to-yellow-50 {
+  background: linear-gradient(to bottom right, #92400e, #a16207) !important;
+}
+
+.from-green-50.to-emerald-50 {
+  background: linear-gradient(to bottom right, #14532d, #064e3b) !important;
+}
+
+/* Enhanced Icons and Symbols */
+svg {
+  transition: all 0.2s ease;
+}
+
+/* Beautiful Footer */
+footer {
+  color: var(--text-muted) !important;
+  background-color: #111827 !important;
+}
+
+footer h3 {
+  color: var(--text-primary) !important;
+}
+
+footer a {
+  color: var(--text-muted) !important;
+}
+
+footer a:hover {
+  color: var(--text-primary) !important;
+}
+
+/* Navigation Dark Theme */
+nav {
+  background-color: #1f2937 !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+/* Special Text Classes */
+.text-primary {
+  color: var(--text-primary) !important;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.text-accent {
+  color: var(--accent-blue) !important;
+}
+
+/* Modern Table Styling */
+th {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  background-color: #374151 !important;
+}
+
+td {
+  color: var(--text-secondary) !important;
+  background-color: #374151 !important;
+}
+
+/* Enhanced Readability */
+.prose {
+  max-width: none;
+}
+
+.prose p {
+  color: var(--text-secondary);
+  margin-bottom: 1.25em;
+}
+
+.prose strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Modern Alert/Badge Colors */
+.bg-blue-100 {
+  background-color: #1e3a8a !important;
+  color: #bfdbfe !important;
+}
+
+.text-blue-600 {
+  color: var(--accent-blue) !important;
+}
+
+.text-blue-800 {
+  color: var(--accent-dark) !important;
+}
+
+/* Elegant Hover Effects */
+.hover\:text-gray-900:hover {
+  color: var(--text-primary) !important;
+}
+
+.hover\:text-blue-800:hover {
+  color: var(--accent-dark) !important;
+}
+
+/* Modern Focus States */
+*:focus {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Enhanced Contrast for Accessibility */
+.text-white {
+  color: #ffffff !important;
+}
+
+.text-black {
+  color: #000000 !important;
+}
+
+/* Beautiful Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Dark Theme Badge Colors */
+.bg-amber-100 {
+  background-color: #92400e !important;
+  color: #fef3c7 !important;
+}
+
+.text-amber-800 {
+  color: #fbbf24 !important;
+}
+
+.bg-green-100 {
+  background-color: #14532d !important;
+  color: #bbf7d0 !important;
+}
+
+.text-green-800 {
+  color: #10b981 !important;
+}
+
+.bg-blue-100 {
+  background-color: #1e3a8a !important;
+  color: #bfdbfe !important;
+}
+
+.text-blue-800 {
+  color: #3b82f6 !important;
+}
+
+/* Banner Animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+/* Enhanced Banner Effects */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Parallax-like effect for banners */
+.banner-parallax {
+  transform: scale(1.1);
+  transition: transform 8s ease-out;
+}
+
+.banner-parallax:hover {
+  transform: scale(1.15);
 }

@@ -1,36 +1,35 @@
-'use client';
+import Link from 'next/link'
+import { getPublicCategories } from '@/lib/actions'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-
-export default function CategoriesPage() {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('/api/admin/categories');
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data.categories || []);
-      }
-    } catch (error) {
-      console.error('Kategoriler yüklenemedi:', error);
-    } finally {
-      setLoading(false);
+export default async function CategoriesPage() {
+  let categories = []
+  
+  try {
+    const result = await getPublicCategories()
+    categories = result || []
+    console.log('📄 Categories page - received categories:', categories.length)
+    if (categories.length > 0) {
+      console.log('📄 First category:', categories[0].name)
+    } else {
+      console.log('⚠️ No categories received')
     }
-  };
+  } catch (error) {
+    console.error('📄 Categories page error:', error)
+    categories = []
+  }
+  
+  // Kategoriler varsa ama boş görünüyorsa force render
+  const hasCategories = Array.isArray(categories) && categories.length > 0
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+  function getCategoryIcon(categoryName) {
+    const name = categoryName.toLowerCase()
+    if (name.includes('women') || name.includes('kadın')) return '👜'
+    if (name.includes('men') || name.includes('erkek')) return '🎒'
+    if (name.includes('travel') || name.includes('seyahat')) return '🧳'
+    if (name.includes('business') || name.includes('iş')) return '💼'
+    if (name.includes('sport') || name.includes('spor')) return '🏃‍♂️'
+    if (name.includes('school') || name.includes('okul')) return '🎓'
+    return '👜'
   }
 
   return (
@@ -54,15 +53,19 @@ export default function CategoriesPage() {
 
       {/* Categories Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {categories.length === 0 ? (
+        {!hasCategories ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📦</div>
             <h3 className="text-xl font-medium text-gray-900 mb-2">
-              Henüz kategori yok
+              Kategoriler yükleniyor...
             </h3>
             <p className="text-gray-600">
-              Yakında yeni kategoriler eklenecek.
+              Kategori verileri yüklenemedi. Sayfayı yenileyin.
             </p>
+            <div className="mt-4">
+              <p className="text-sm text-gray-500">Categories count: {categories?.length || 0}</p>
+              <p className="text-sm text-gray-500">Is array: {Array.isArray(categories) ? 'Yes' : 'No'}</p>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -122,22 +125,11 @@ export default function CategoriesPage() {
               </Link>
             </div>
             <div className="text-sm text-gray-500">
-              © 2024 Bag Store. Tüm hakları saklıdır.
+              © 2024 Livkors. Tüm hakları saklıdır.
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-function getCategoryIcon(categoryName) {
-  const name = categoryName.toLowerCase();
-  if (name.includes('women') || name.includes('kadın')) return '👜';
-  if (name.includes('men') || name.includes('erkek')) return '🎒';
-  if (name.includes('travel') || name.includes('seyahat')) return '🧳';
-  if (name.includes('business') || name.includes('iş')) return '💼';
-  if (name.includes('sport') || name.includes('spor')) return '🏃‍♂️';
-  if (name.includes('school') || name.includes('okul')) return '��';
-  return '👜';
+  )
 } 

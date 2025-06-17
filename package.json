@@ -1,13 +1,18 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
+  "name": "livkors-ecommerce",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
@@ -19,7 +24,8 @@
     "next-auth": "^4.24.11",
     "prisma": "^6.8.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
