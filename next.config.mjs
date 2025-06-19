@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // output: 'export', // Vercel deployment için kapatıyoruz
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
-  distDir: 'dist',
+  // distDir: 'dist', // Vercel deployment için kapatıyoruz
   serverExternalPackages: ['@prisma/client', 'bcryptjs'],
   images: {
     remotePatterns: [

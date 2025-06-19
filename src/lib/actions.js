@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
-const sqlite = require('./sqlite')
+// const sqlite = require('./sqlite') // Temporarily disabled for Vercel deployment
 
 // ============ AUTH ACTIONS ============
 

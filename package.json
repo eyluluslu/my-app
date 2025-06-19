@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "export": "prisma generate && next build",
     "export-cpanel": "npm run export && echo 'Build completed! Upload the dist/ folder to your cPanel public_html directory'",
     "start": "next start",
