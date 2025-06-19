@@ -59,4 +59,8 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Export/build directories
+/dist
+/dist/
+
 .vercel
