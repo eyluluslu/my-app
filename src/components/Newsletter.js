@@ -13,30 +13,13 @@ export default function Newsletter() {
     setLoading(true)
     setMessage('')
 
-    try {
-      const response = await fetch('/api/newsletter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      })
+    // Simulate loading
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-      const data = await response.json()
-
-      if (data.success) {
-        setMessage(data.message)
-        setSuccess(true)
-        setEmail('')
-      } else {
-        setMessage(data.error)
-        setSuccess(false)
-      }
-    } catch (error) {
-      setMessage('Bağlantı hatası. Lütfen tekrar deneyin.')
-      setSuccess(false)
-    }
-
+    // Mock success response
+    setMessage('Başarıyla abone oldunuz! Teşekkür ederiz.')
+    setSuccess(true)
+    setEmail('')
     setLoading(false)
   }
 
