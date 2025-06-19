@@ -1,46 +1,14 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+
+// Temporarily disabled for Vercel deployment
+export const dynamic = 'force-static'
 
 export async function POST(request) {
   try {
-    const { email } = await request.json()
-
-    if (!email) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'E-posta adresi gerekli' 
-      }, { status: 400 })
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Geçersiz e-posta adresi' 
-      }, { status: 400 })
-    }
-
-    // Check if email already exists
-    const existingSubscription = await prisma.newsletter.findUnique({
-      where: { email }
-    })
-
-    if (existingSubscription) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Bu e-posta adresi zaten abone listesinde' 
-      }, { status: 400 })
-    }
-
-    // Create new subscription
-    await prisma.newsletter.create({
-      data: { email }
-    })
-
+    // Static response for now - newsletter functionality disabled during deployment
     return NextResponse.json({ 
       success: true, 
-      message: 'Başarıyla abone oldunuz! %20 indirim kuponunuz e-posta adresinize gönderildi.' 
+      message: 'Teşekkürler! Newsletter özelliği yakında aktif olacak.' 
     })
 
   } catch (error) {
