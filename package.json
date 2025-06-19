@@ -14,7 +14,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:reset": "prisma migrate reset",
-    "postinstall": "prisma generate"
+    "postinstall": "echo 'Skipping prisma generate for now'"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
