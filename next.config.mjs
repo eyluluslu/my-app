@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',  // Vercel için optimize edilmiş build
+  output: 'export',
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
+  distDir: 'dist',
   serverExternalPackages: ['@prisma/client', 'bcryptjs'],
   images: {
     remotePatterns: [
@@ -23,8 +26,9 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    unoptimized: true
   },
-  // Statik dosyalar için headers
+  // API routes için headers
   async headers() {
     return [
       {
@@ -46,6 +50,9 @@ const nextConfig = {
       },
     ]
   },
+  experimental: {
+    esmExternals: false
+  }
 };
 
 export default nextConfig;

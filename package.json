@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "export": "prisma generate && next build",
+    "export-cpanel": "npm run export && echo 'Build completed! Upload the dist/ folder to your cPanel public_html directory'",
     "start": "next start",
     "lint": "next lint",
     "seed": "node scripts/seed.js",
@@ -17,6 +19,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.4",
     "@prisma/client": "^6.8.2",
+    "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.511.0",
