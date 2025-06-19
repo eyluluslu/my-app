@@ -36,10 +36,14 @@ export default function Logo({
         <img 
           src={logoUrl} 
           alt={siteName} 
-          className={`${currentSize.logo} object-contain`}
+          className={`${currentSize.logo} rounded-full object-cover`}
         />
       ) : (
-        <span className={currentSize.emoji}>💎</span>
+        <img 
+          src="/logo.jpg" 
+          alt={siteName} 
+          className={`${currentSize.logo} rounded-full object-cover`}
+        />
       )}
       {showText && (
         <span className={`${currentSize.text} font-bold text-yellow-500`}>

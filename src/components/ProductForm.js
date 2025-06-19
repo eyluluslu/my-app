@@ -25,7 +25,7 @@ export default function ProductForm({ categories, editingProduct, onClose }) {
         onClose()
         // Sayfayı yenile
         window.location.reload()
-      }, 1000)
+      }, 1500) // Biraz daha uzun bekle
     }
   }, [state?.success, onClose])
 

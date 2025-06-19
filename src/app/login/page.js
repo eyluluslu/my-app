@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getCurrentUser, loginAction, registerAction } from '@/lib/actions'
 import { redirect } from 'next/navigation'
 import LoginForm from '@/components/LoginForm'
+import { getSiteSettings } from '@/lib/site-actions'
 
 export default async function LoginPage() {
   // Eğer kullanıcı zaten giriş yapmışsa yönlendir
@@ -15,13 +16,31 @@ export default async function LoginPage() {
     }
   }
 
+  // Site ayarlarını al
+  const siteSettingsResult = await getSiteSettings()
+  const siteSettings = siteSettingsResult.success ? siteSettingsResult.data : null
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="flex flex-col items-center">
-            <div className="text-6xl mb-2">💎</div>
-            <span className="text-2xl font-bold text-yellow-500">Livkors</span>
+            {siteSettings?.logoUrl ? (
+              <img 
+                src={siteSettings.logoUrl} 
+                alt={siteSettings.siteName || "Livkors"} 
+                className="h-16 w-16 mx-auto mb-4 rounded-full object-cover ring-4 ring-blue-400 shadow-xl"
+              />
+            ) : (
+              <img 
+                src="/logo.jpg" 
+                alt="Livkors" 
+                className="h-16 w-16 mx-auto mb-4 rounded-full object-cover ring-4 ring-blue-400 shadow-xl"
+              />
+            )}
+            <span className="text-2xl font-bold text-yellow-500">
+              {siteSettings?.siteName || "Livkors"}
+            </span>
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -39,26 +58,7 @@ export default async function LoginPage() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <LoginForm />
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Test Hesapları</span>
-              </div>
-            </div>
 
-            <div className="mt-6">
-              <div className="bg-gray-50 p-4 rounded-md">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Demo Hesapları:</h4>
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p><strong>Admin:</strong> admin@test.com / 123456</p>
-                  <p><strong>Kullanıcı:</strong> user@test.com / 123456</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <div className="mt-6 text-center">
             <Link 

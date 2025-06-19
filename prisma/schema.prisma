@@ -24,6 +24,45 @@ model User {
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
   cart             Cart?
+  addresses        Address[]
+  paymentMethods   PaymentMethod[]
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  title       String   // "Ev", "İş", "Diğer" gibi
+  firstName   String
+  lastName    String
+  company     String?
+  phone       String
+  address     String
+  city        String
+  state       String
+  zipCode     String
+  country     String   @default("Türkiye")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+}
+
+model PaymentMethod {
+  id          String      @id @default(cuid())
+  type        PaymentType
+  title       String      // "Ana Kart", "İş Kartı" gibi
+  cardNumber  String?     // Son 4 hane
+  cardHolder  String?
+  expiryDate  String?
+  isDefault   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }
 
 model Category {
@@ -170,6 +209,14 @@ model HeroBanner {
   updatedAt   DateTime @updatedAt
 }
 
+model Newsletter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum Role {
   USER
   ADMIN
@@ -181,4 +228,11 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+enum PaymentType {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
 }

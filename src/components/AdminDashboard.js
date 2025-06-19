@@ -534,18 +534,20 @@ export default function AdminDashboard({
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {product.stock}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                           <button 
                             onClick={() => handleEditProduct(product)}
-                            className="text-indigo-600 hover:text-indigo-900 mr-3"
+                            className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-4 w-4 mr-1" />
+                            Düzenle
                           </button>
                           <button 
                             onClick={() => handleDeleteProduct(product.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-red-600 hover:text-red-900 inline-flex items-center"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Sil
                           </button>
                         </td>
                       </tr>
@@ -777,7 +779,7 @@ export default function AdminDashboard({
       {/* Product Form Modal */}
       {showProductForm && (
         <ProductForm
-          product={editingProduct}
+          editingProduct={editingProduct}
           categories={initialCategories}
           onClose={handleCloseProductForm}
         />

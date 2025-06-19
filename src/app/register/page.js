@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getCurrentUser } from '@/lib/actions'
 import { redirect } from 'next/navigation'
 import RegisterForm from '@/components/RegisterForm'
+import { getSiteSettings } from '@/lib/site-actions'
 
 export default async function RegisterPage() {
   // Eğer kullanıcı zaten giriş yapmışsa yönlendir
@@ -15,13 +16,31 @@ export default async function RegisterPage() {
     }
   }
 
+  // Site ayarlarını al
+  const siteSettingsResult = await getSiteSettings()
+  const siteSettings = siteSettingsResult.success ? siteSettingsResult.data : null
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="flex flex-col items-center">
-            <div className="text-6xl mb-2">💎</div>
-            <span className="text-2xl font-bold text-yellow-500">Livkors</span>
+            {siteSettings?.logoUrl ? (
+              <img 
+                src={siteSettings.logoUrl} 
+                alt={siteSettings.siteName || "Livkors"} 
+                className="h-16 w-16 mx-auto mb-4 rounded-full object-cover ring-4 ring-blue-400 shadow-xl"
+              />
+            ) : (
+              <img 
+                src="/logo.jpg" 
+                alt="Livkors" 
+                className="h-16 w-16 mx-auto mb-4 rounded-full object-cover ring-4 ring-blue-400 shadow-xl"
+              />
+            )}
+            <span className="text-2xl font-bold text-yellow-500">
+              {siteSettings?.siteName || "Livkors"}
+            </span>
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

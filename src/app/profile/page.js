@@ -1,15 +1,21 @@
 import { getCurrentUser } from '@/lib/actions'
+import { getSiteSettings } from '@/lib/site-actions'
 import { redirect } from 'next/navigation'
 import ProfileForm from '@/components/ProfileForm'
 import LogoutButton from '@/components/LogoutButton'
 import Link from 'next/link'
 
 export default async function ProfilePage() {
-  const user = await getCurrentUser()
+  const [user, siteSettingsResult] = await Promise.all([
+    getCurrentUser(),
+    getSiteSettings()
+  ])
   
   if (!user) {
     redirect('/login')
   }
+  
+  const siteSettings = siteSettingsResult.success ? siteSettingsResult.data : null
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -18,9 +24,23 @@ export default async function ProfilePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-2">
-                <span className="text-2xl">💎</span>
-                <span className="text-2xl font-bold text-yellow-500">Livkors</span>
+              <Link href="/" className="flex items-center space-x-2 group">
+                {siteSettings?.logoUrl ? (
+                  <img 
+                    src={siteSettings.logoUrl} 
+                    alt={siteSettings?.siteName || 'Livkors'} 
+                    className="h-8 w-8 rounded-full object-cover ring-2 ring-yellow-400 group-hover:ring-yellow-300 transition-all transform group-hover:scale-110"
+                  />
+                ) : (
+                  <img 
+                    src="/logo.jpg" 
+                    alt="Livkors" 
+                    className="h-8 w-8 rounded-full object-cover ring-2 ring-yellow-400 group-hover:ring-yellow-300 transition-all transform group-hover:scale-110"
+                  />
+                )}
+                <span className="text-2xl font-bold text-yellow-500 group-hover:text-yellow-400 transition-colors">
+                  {siteSettings?.siteName || 'Livkors'}
+                </span>
               </Link>
             </div>
             

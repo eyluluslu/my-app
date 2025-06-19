@@ -1,15 +1,18 @@
 import Link from 'next/link'
 import { getCurrentUser, getCartCount } from '@/lib/actions'
 import { getAboutPageData } from '@/lib/about-actions'
+import { getSiteSettings } from '@/lib/site-actions'
 
 export default async function AboutPage() {
-  const [user, cartCount, aboutResult] = await Promise.all([
+  const [user, cartCount, aboutResult, siteSettingsResult] = await Promise.all([
     getCurrentUser(),
     getCurrentUser().then(u => u ? getCartCount() : 0),
-    getAboutPageData()
+    getAboutPageData(),
+    getSiteSettings()
   ])
 
   const aboutData = aboutResult.success ? aboutResult.data : null
+  const siteSettings = siteSettingsResult.success ? siteSettingsResult.data : null
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -18,9 +21,23 @@ export default async function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
                           <div className="flex items-center">
-                <Link href="/" className="flex items-center space-x-2">
-                  <span className="text-2xl">💎</span>
-                  <span className="text-2xl font-bold text-yellow-500">Livkors</span>
+                <Link href="/" className="flex items-center space-x-2 group">
+                  {siteSettings?.logoUrl ? (
+                    <img 
+                      src={siteSettings.logoUrl} 
+                      alt={siteSettings?.siteName || 'Livkors'} 
+                      className="h-8 w-8 rounded-full object-cover ring-2 ring-yellow-400 group-hover:ring-yellow-300 transition-all transform group-hover:scale-110"
+                    />
+                  ) : (
+                    <img 
+                      src="/logo.jpg" 
+                      alt="Livkors" 
+                      className="h-8 w-8 rounded-full object-cover ring-2 ring-yellow-400 group-hover:ring-yellow-300 transition-all transform group-hover:scale-110"
+                    />
+                  )}
+                  <span className="text-2xl font-bold text-yellow-500 group-hover:text-yellow-400 transition-colors">
+                    {siteSettings?.siteName || 'Livkors'}
+                  </span>
                 </Link>
               <div className="hidden md:ml-10 md:flex md:space-x-8">
                 <Link href="/" className="text-gray-700 hover:text-gray-900">Ana Sayfa</Link>
@@ -241,7 +258,11 @@ Her yaş ve tarza hitap eden geniş ürün yelpazemizle, günlük yaşamınızda
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                           <div>
                 <div className="flex items-center space-x-2 mb-4">
-                  <span className="text-2xl">💎</span>
+                  <img 
+                  src="/logo.jpg" 
+                  alt="Livkors" 
+                  className="h-8 w-8 rounded-full object-cover"
+                />
                   <span className="text-2xl font-bold text-yellow-500">Livkors</span>
                 </div>
               <p className="text-gray-400">

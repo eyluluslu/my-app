@@ -219,6 +219,15 @@ export async function createProduct(formData) {
       return { error: 'İsim, fiyat ve kategori gerekli' }
     }
 
+    // Check if a product with the same name already exists
+    const existingProduct = await prisma.product.findUnique({
+      where: { name: name }
+    })
+
+    if (existingProduct) {
+      return { error: `"${name}" isimli bir ürün zaten var. Lütfen farklı bir isim kullanın.` }
+    }
+
     const createdProduct = await prisma.product.create({
       data: {
         name,
@@ -238,6 +247,12 @@ export async function createProduct(formData) {
     console.error('Create product error details:', error)
     console.error('Error message:', error.message)
     console.error('Error stack:', error.stack)
+    
+    // Handle unique constraint error specifically
+    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+      return { error: 'Bu ürün adı zaten kullanılıyor. Lütfen farklı bir isim seçin.' }
+    }
+    
     return { error: 'Ürün eklenirken bir hata oluştu: ' + error.message }
   }
 }
@@ -256,6 +271,15 @@ export async function updateProduct(id, formData) {
 
     console.log('Update data:', { name, description, price, imageUrl, stock, categoryId })
 
+    // Check if another product with the same name exists (excluding current product)
+    const existingProduct = await prisma.product.findUnique({
+      where: { name: name }
+    })
+
+    if (existingProduct && existingProduct.id !== id) {
+      return { error: `"${name}" isimli başka bir ürün zaten var. Lütfen farklı bir isim kullanın.` }
+    }
+
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
@@ -270,12 +294,21 @@ export async function updateProduct(id, formData) {
 
     console.log('Product updated successfully:', updatedProduct)
     revalidatePath('/admin')
+    revalidatePath('/admin/products')
+    revalidatePath('/products')
+    revalidatePath('/')
     return { success: 'Ürün başarıyla güncellendi!' }
 
   } catch (error) {
     console.error('Update product error details:', error)
     console.error('Error message:', error.message)
     console.error('Error stack:', error.stack)
+    
+    // Handle unique constraint error specifically
+    if (error.code === 'P2002' && error.meta?.target?.includes('name')) {
+      return { error: 'Bu ürün adı zaten kullanılıyor. Lütfen farklı bir isim seçin.' }
+    }
+    
     return { error: 'Ürün güncellenirken bir hata oluştu: ' + error.message }
   }
 }
@@ -1189,8 +1222,278 @@ export async function changeUserRole(userId, newRole) {
     revalidatePath('/admin')
     return { success: `Kullanıcı rolü ${newRole} olarak güncellendi` }
 
-  } catch (error) {
+    } catch (error) {
     console.error('Change user role error:', error)
     return { error: 'Rol değiştirilirken bir hata oluştu' }
+  }
+}
+
+// Adres yönetimi fonksiyonları
+export async function getUserAddresses() {
+  try {
+    const user = await getCurrentUser()
+    if (!user?.id) {
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    const addresses = await prisma.address.findMany({
+      where: { userId: user.id },
+      orderBy: [
+        { isDefault: 'desc' },
+        { createdAt: 'desc' }
+      ]
+    })
+
+    return { success: true, addresses }
+  } catch (error) {
+    console.error('Adresler getirilirken hata:', error)
+    return { success: false, error: 'Adresler getirilemedi' }
+  }
+}
+
+export async function createAddress(addressData) {
+  try {
+    console.log('createAddress called with data:', addressData)
+    
+    const user = await getCurrentUser()
+    console.log('User:', user)
+    
+    if (!user?.id) {
+      console.log('No user ID found')
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    // Eğer bu varsayılan adres ise, diğerlerini güncelle
+    if (addressData.isDefault) {
+      console.log('Setting as default address, updating others...')
+      await prisma.address.updateMany({
+        where: { userId: user.id },
+        data: { isDefault: false }
+      })
+    }
+
+    console.log('Creating address with data:', {
+      ...addressData,
+      userId: user.id
+    })
+
+    const address = await prisma.address.create({
+      data: {
+        ...addressData,
+        userId: user.id
+      }
+    })
+
+    console.log('Address created successfully:', address)
+    return { success: true, address }
+  } catch (error) {
+    console.error('Adres oluşturulurken hata:', error)
+    console.error('Error details:', error.message)
+    console.error('Error stack:', error.stack)
+    return { success: false, error: 'Adres oluşturulamadı: ' + error.message }
+  }
+}
+
+export async function updateAddress(addressId, addressData) {
+  try {
+    const user = await getCurrentUser()
+    if (!user?.id) {
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    // Adresin kullanıcıya ait olduğunu kontrol et
+    const existingAddress = await prisma.address.findFirst({
+      where: { id: addressId, userId: user.id }
+    })
+
+    if (!existingAddress) {
+      return { success: false, error: 'Adres bulunamadı' }
+    }
+
+    // Eğer bu varsayılan adres ise, diğerlerini güncelle
+    if (addressData.isDefault && !existingAddress.isDefault) {
+      await prisma.address.updateMany({
+        where: { userId: user.id, id: { not: addressId } },
+        data: { isDefault: false }
+      })
+    }
+
+    const address = await prisma.address.update({
+      where: { id: addressId },
+      data: addressData
+    })
+
+    return { success: true, address }
+  } catch (error) {
+    console.error('Adres güncellenirken hata:', error)
+    return { success: false, error: 'Adres güncellenemedi' }
+  }
+}
+
+export async function deleteAddress(addressId) {
+  try {
+    const user = await getCurrentUser()
+    if (!user?.id) {
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    // Adresin kullanıcıya ait olduğunu kontrol et
+    const existingAddress = await prisma.address.findFirst({
+      where: { id: addressId, userId: user.id }
+    })
+
+    if (!existingAddress) {
+      return { success: false, error: 'Adres bulunamadı' }
+    }
+
+    await prisma.address.delete({
+      where: { id: addressId }
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error('Adres silinirken hata:', error)
+    return { success: false, error: 'Adres silinemedi' }
+  }
+}
+
+// Ödeme yöntemi yönetimi fonksiyonları
+export async function getUserPaymentMethods() {
+  try {
+    const user = await getCurrentUser()
+    if (!user?.id) {
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    const paymentMethods = await prisma.paymentMethod.findMany({
+      where: { userId: user.id },
+      orderBy: [
+        { isDefault: 'desc' },
+        { createdAt: 'desc' }
+      ]
+    })
+
+    return { success: true, paymentMethods }
+  } catch (error) {
+    console.error('Ödeme yöntemleri getirilirken hata:', error)
+    return { success: false, error: 'Ödeme yöntemleri getirilemedi' }
+  }
+}
+
+export async function createPaymentMethod(paymentData) {
+  try {
+    console.log('createPaymentMethod called with data:', paymentData)
+    
+    const user = await getCurrentUser()
+    console.log('User:', user)
+    
+    if (!user?.id) {
+      console.log('No user ID found')
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    // Kart numarasını son 4 hane olarak sakla
+    if (paymentData.cardNumber) {
+      console.log('Original card number length:', paymentData.cardNumber.length)
+      paymentData.cardNumber = paymentData.cardNumber.slice(-4)
+      console.log('Stored card number (last 4 digits):', paymentData.cardNumber)
+    }
+
+    // Eğer bu varsayılan ödeme yöntemi ise, diğerlerini güncelle
+    if (paymentData.isDefault) {
+      console.log('Setting as default payment method, updating others...')
+      await prisma.paymentMethod.updateMany({
+        where: { userId: user.id },
+        data: { isDefault: false }
+      })
+    }
+
+    console.log('Creating payment method with data:', {
+      ...paymentData,
+      userId: user.id
+    })
+
+    const paymentMethod = await prisma.paymentMethod.create({
+      data: {
+        ...paymentData,
+        userId: user.id
+      }
+    })
+
+    console.log('Payment method created successfully:', paymentMethod)
+    return { success: true, paymentMethod }
+  } catch (error) {
+    console.error('Ödeme yöntemi oluşturulurken hata:', error)
+    console.error('Error details:', error.message)
+    console.error('Error stack:', error.stack)
+    return { success: false, error: 'Ödeme yöntemi oluşturulamadı: ' + error.message }
+  }
+}
+
+export async function updatePaymentMethod(paymentId, paymentData) {
+  try {
+    const user = await getCurrentUser()
+    if (!user?.id) {
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    // Ödeme yönteminin kullanıcıya ait olduğunu kontrol et
+    const existingPayment = await prisma.paymentMethod.findFirst({
+      where: { id: paymentId, userId: user.id }
+    })
+
+    if (!existingPayment) {
+      return { success: false, error: 'Ödeme yöntemi bulunamadı' }
+    }
+
+    // Kart numarasını son 4 hane olarak sakla
+    if (paymentData.cardNumber) {
+      paymentData.cardNumber = paymentData.cardNumber.slice(-4)
+    }
+
+    // Eğer bu varsayılan ödeme yöntemi ise, diğerlerini güncelle
+    if (paymentData.isDefault && !existingPayment.isDefault) {
+      await prisma.paymentMethod.updateMany({
+        where: { userId: user.id, id: { not: paymentId } },
+        data: { isDefault: false }
+      })
+    }
+
+    const paymentMethod = await prisma.paymentMethod.update({
+      where: { id: paymentId },
+      data: paymentData
+    })
+
+    return { success: true, paymentMethod }
+  } catch (error) {
+    console.error('Ödeme yöntemi güncellenirken hata:', error)
+    return { success: false, error: 'Ödeme yöntemi güncellenemedi' }
+  }
+}
+
+export async function deletePaymentMethod(paymentId) {
+  try {
+    const user = await getCurrentUser()
+    if (!user?.id) {
+      return { success: false, error: 'Oturum bulunamadı' }
+    }
+
+    // Ödeme yönteminin kullanıcıya ait olduğunu kontrol et
+    const existingPayment = await prisma.paymentMethod.findFirst({
+      where: { id: paymentId, userId: user.id }
+    })
+
+    if (!existingPayment) {
+      return { success: false, error: 'Ödeme yöntemi bulunamadı' }
+    }
+
+    await prisma.paymentMethod.delete({
+      where: { id: paymentId }
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error('Ödeme yöntemi silinirken hata:', error)
+    return { success: false, error: 'Ödeme yöntemi silinemedi' }
   }
 } 
