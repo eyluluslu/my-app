@@ -26,26 +26,44 @@ async function requireAdmin() {
 // Site Settings Actions
 export async function getSiteSettings() {
   try {
+    // Default fallback settings
+    const defaultSettings = {
+      siteName: "Livkors",
+      siteDescription: "Kaliteli çantalar ve mükemmel müşteri hizmetinde öncü markayız",
+      heroTitle: "Özel Tasarım Çantalar",
+      heroSubtitle: "Her tarza uygun kaliteli çantalar. Kadın, erkek ve özel koleksiyonlar.",
+      footerText: "Kaliteli çantalar ve mükemmel müşteri hizmetinde öncü markayız.",
+      metaTitle: "Livkors - Kaliteli Çantalar",
+      metaDescription: "En kaliteli çantalar, uygun fiyatlar ve hızlı teslimat"
+    }
+
     let settings = await prisma.siteSettings.findFirst()
     
     if (!settings) {
-      settings = await prisma.siteSettings.create({
-        data: {
-          siteName: "Livkors",
-          siteDescription: "Kaliteli çantalar ve mükemmel müşteri hizmetinde öncü markayız",
-          heroTitle: "Özel Tasarım Çantalar",
-          heroSubtitle: "Her tarza uygun kaliteli çantalar. Kadın, erkek ve özel koleksiyonlar.",
-          footerText: "Kaliteli çantalar ve mükemmel müşteri hizmetinde öncü markayız.",
-          metaTitle: "Livkors - Kaliteli Çantalar",
-          metaDescription: "En kaliteli çantalar, uygun fiyatlar ve hızlı teslimat"
-        }
-      })
+      try {
+        settings = await prisma.siteSettings.create({
+          data: defaultSettings
+        })
+      } catch (createError) {
+        console.log('Database not available, using default settings')
+        return { success: true, data: defaultSettings }
+      }
     }
 
     return { success: true, data: settings }
   } catch (error) {
     console.error('Site ayarları getirilemedi:', error)
-    return { success: false, message: 'Site ayarları getirilemedi' }
+    // Return default settings if database is not available
+    const defaultSettings = {
+      siteName: "Livkors",
+      siteDescription: "Kaliteli çantalar ve mükemmel müşteri hizmetinde öncü markayız",
+      heroTitle: "Özel Tasarım Çantalar",
+      heroSubtitle: "Her tarza uygun kaliteli çantalar. Kadın, erkek ve özel koleksiyonlar.",
+      footerText: "Kaliteli çantalar ve mükemmel müşteri hizmetinde öncü markayız.",
+      metaTitle: "Livkors - Kaliteli Çantalar",
+      metaDescription: "En kaliteli çantalar, uygun fiyatlar ve hızlı teslimat"
+    }
+    return { success: true, data: defaultSettings }
   }
 }
 
@@ -101,7 +119,8 @@ export async function getHeroBanners() {
     return { success: true, data: banners }
   } catch (error) {
     console.error('Bannerlar getirilemedi:', error)
-    return { success: false, message: 'Bannerlar getirilemedi' }
+    // Return empty array if database is not available
+    return { success: true, data: [] }
   }
 }
 

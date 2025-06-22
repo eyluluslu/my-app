@@ -24,9 +24,9 @@ const nextConfig = {
     ],
     unoptimized: true
   },
-  experimental: {
-    esmExternals: false
-  }
+  output: 'standalone',
+  poweredByHeader: false,
+  compress: true
 };
 
 export default nextConfig;

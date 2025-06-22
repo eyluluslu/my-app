@@ -4,14 +4,33 @@ import { getHeroBanners, getSiteSettings } from '@/lib/site-actions'
 import HeroSlider from '@/components/HeroSlider'
 import Newsletter from '@/components/Newsletter'
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
-  const user = await getCurrentUser()
+  let user = null
+  let banners = []
+  let siteSettings = null
+
+  try {
+    user = await getCurrentUser()
+  } catch (error) {
+    console.error('Error getting current user:', error)
+  }
   
   // Banner ve site ayarlarını getir
-  const [banners, siteSettings] = await Promise.all([
-    getHeroBanners().then(result => result.success ? result.data : []),
-    getSiteSettings().then(result => result.success ? result.data : null)
-  ])
+  try {
+    const [bannersResult, siteSettingsResult] = await Promise.all([
+      getHeroBanners().catch(() => ({ success: false, data: [] })),
+      getSiteSettings().catch(() => ({ success: false, data: null }))
+    ])
+    
+    banners = bannersResult.success ? bannersResult.data : []
+    siteSettings = siteSettingsResult.success ? siteSettingsResult.data : null
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    banners = []
+    siteSettings = null
+  }
 
   return (
     <div className="min-h-screen bg-slate-900">
