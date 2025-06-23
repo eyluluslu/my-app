@@ -1,4 +1,4 @@
-# Vercel Environment Variables Kurulumu
+# Vercel Environment Variables Kurulumu (SQLite)
 
 ## Vercel 404 Hatasını Çözmek İçin Gerekli Adımlar
 
@@ -12,11 +12,11 @@ Aşağıdaki environment variables'ları ekleyin:
 #### Settings > Environment Variables bölümünde:
 
 ```bash
-# Zorunlu Environment Variables:
-DATABASE_URL=postgresql://username:password@hostname:port/database_name
-NEXTAUTH_SECRET=your-super-secret-key-here-change-this
+# Zorunlu Environment Variables (SQLite):
+DATABASE_URL=file:./prisma/dev.db
+NEXTAUTH_SECRET=your-super-secret-key-here-change-this-to-something-unique
 NEXTAUTH_URL=https://your-vercel-url.vercel.app
-JWT_SECRET=your-jwt-secret-key-here
+JWT_SECRET=your-jwt-secret-key-here-make-it-unique
 NODE_ENV=production
 SKIP_ENV_VALIDATION=1
 
@@ -24,75 +24,111 @@ SKIP_ENV_VALIDATION=1
 NEXT_PUBLIC_APP_URL=https://your-vercel-url.vercel.app
 ```
 
-### 3. PostgreSQL Database Kurulumu (Ücretsiz Seçenekler)
+### 3. SQLite Database Kurulumu (Vercel İçin)
 
-#### Seçenek 1: Vercel Postgres (Önerilen)
-1. Vercel Dashboard'da projenizi seçin
-2. Storage sekmesine gidin
-3. "Create Database" > "Postgres" seçin
-4. Database oluşturduktan sonra connection string'i alın
-5. DATABASE_URL olarak ekleyin
+#### SQLite Vercel'de Nasıl Çalışır:
+- SQLite dosyası her deployment'ta yeniden oluşturulur
+- Versiyon kontrolünde `prisma/dev.db` dosyası bulunmalı
+- Production için otomatik migration çalışır
 
-#### Seçenek 2: Neon (Ücretsiz)
-1. [Neon.tech](https://neon.tech) hesabı oluşturun
-2. Yeni database oluşturun
-3. Connection string'i kopyalayın
-4. DATABASE_URL olarak ekleyin
+#### Gerekli Ayarlar:
 
-#### Seçenek 3: Aiven (Ücretsiz)
-1. [Aiven.io](https://aiven.io) hesabı oluşturun
-2. PostgreSQL service oluşturun
-3. Connection string'i alın
+1. **Local SQLite dosyasını commit edin**:
+```bash
+# Veritabanını oluşturun
+npx prisma db push
 
-### 4. Deployment Sonrası Kontrol
+# SQLite dosyasını git'e ekleyin
+git add prisma/dev.db
+git commit -m "Add SQLite database file for Vercel"
+git push
+```
+
+2. **Prisma Generate için Build Script**:
+   - Bu ayar zaten `package.json`'da mevcut
+   - Vercel otomatik olarak `prisma generate` çalıştırır
+
+### 4. Vercel Build Commands (Otomatik)
+
+Vercel aşağıdaki komutları otomatik çalıştırır:
+```bash
+npm install
+npx prisma generate
+npm run build
+```
+
+### 5. Deployment Sonrası Kontrol
 
 Deployment tamamlandıktan sonra:
 
 1. Vercel dashboard'da "Deployments" sekmesini kontrol edin
 2. En son deployment'ın başarılı olduğunu doğrulayın
-3. Sitenizi ziyaret edin
+3. Build logs'ları kontrol edin
+4. Sitenizi ziyaret edin
 
-### 5. Sorun Giderme
+### 6. Sorun Giderme
 
 #### Eğer hala 404 hatası alıyorsanız:
 
-1. **Vercel Logs Kontrol**:
+1. **Vercel Function Logs**:
    - Dashboard > Functions > View Function Logs
-   - Hata mesajlarını kontrol edin
+   - SQLite connection hatalarını kontrol edin
 
 2. **Environment Variables Doğrulama**:
-   - Tüm gerekli değişkenlerin eklendiğini kontrol edin
+   - `DATABASE_URL=file:./prisma/dev.db` olduğunu kontrol edin
    - Production, Preview ve Development için aynı değerlerin olduğunu doğrulayın
 
-3. **Redeploy**:
+3. **Redeploy (Önemli)**:
    - Settings > General > "Redeploy" butonuna basın
-   - "Use existing build cache" seçeneğini kapatın
+   - "Use existing build cache" seçeneğini **KAPATIN**
+   - Bu SQLite dosyasının yeniden upload edilmesini sağlar
 
-### 6. Örnek DATABASE_URL Formatları
+4. **Database Dosyası Kontrol**:
+   - Repository'de `prisma/dev.db` dosyasının mevcut olduğunu kontrol edin
+   - Dosya boyutunun 0 byte olmadığını doğrulayın
 
-```bash
-# PostgreSQL Format:
-DATABASE_URL="postgresql://username:password@hostname:port/database_name?sslmode=require"
+### 7. SQLite Vercel Deployment Özellikleri
 
-# Neon Format:
-DATABASE_URL="postgresql://username:password@hostname/database_name?sslmode=require"
+#### ✅ Avantajlar:
+- Kurulum gerektirmez
+- Ücretsiz
+- Hızlı başlatma
+- Kolay deployment
 
-# Vercel Postgres Format (otomatik oluşturulur):
-DATABASE_URL="postgres://username:password@hostname:port/database_name?sslmode=require"
+#### ⚠️ Dikkat Edilecekler:
+- Her deployment'ta database sıfırlanır
+- Test verileri kaybolur
+- Concurrent connections sınırlı
+
+#### 🔄 Production için Öneri:
+Eğer production'da veri kalıcılığı istiyorsanız:
+- Vercel Postgres (ücretli)
+- PlanetScale (ücretli)
+- Neon.tech (ücretsiz plan mevcut)
+
+### 8. Test Verilerini Her Deployment'ta Eklemek
+
+`package.json`'da build script'ini güncelleyin:
+```json
+{
+  "scripts": {
+    "postbuild": "npx prisma db seed"
+  }
+}
 ```
 
-### 7. Deployment Tamamlandıktan Sonra
+### 9. Hızlı Kontrol Komutu
 
-Database migration'ları çalıştırmak için Vercel'de:
-
-1. Vercel CLI ile:
+Local'de test etmek için:
 ```bash
-vercel env pull .env.local
-npx prisma migrate deploy
-```
+# Database'i sıfırla ve test verilerini ekle
+npx prisma db push --force-reset
+npx prisma db seed
 
-2. Veya Vercel dashboard'da Functions > Serverless Functions bölümünden database migration endpoint'ini çağırın
+# Build'i test et
+npm run build
+```
 
 ---
 
-**Not**: Bu adımları takip ettikten sonra, site normal şekilde çalışmaya başlamalıdır. Herhangi bir sorun yaşarsanız, Vercel support ile iletişime geçebilirsiniz. 
+**Not**: SQLite ile Vercel deployment'ı çok daha basit! Sadece environment variables'ları ekleyip redeploy yapmanız yeterli. Database dosyası otomatik olarak repository'den alınır. 
