@@ -1,5 +1,4 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
 
 export const dynamic = 'force-dynamic'
@@ -15,18 +14,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Livkors",
-  description: "Livkors - Online Alışveriş Mağazası",
+  title: "Livkors - Online Çanta Mağazası",
+  description: "Livkors - Kaliteli çantalar ve mükemmel müşteri hizmeti",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="tr">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <SpeedInsights />
+        <div id="root">
+          {children}
+        </div>
       </body>
     </html>
   );

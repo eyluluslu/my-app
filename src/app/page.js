@@ -54,9 +54,28 @@ const featuredProducts = [
 ]
 
 export default function HomePage() {
+  // Debug information for Vercel
+  const debugInfo = {
+    nodeEnv: process.env.NODE_ENV,
+    databaseUrl: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
+    timestamp: new Date().toISOString()
+  }
+
+  // Log debug info in production for troubleshooting
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Debug Info:', debugInfo)
+  }
+
   return (
     <div className="min-h-screen bg-slate-900">
       <Navigation />
+      
+      {/* Debug Info (only in development) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-yellow-100 text-black p-4 text-xs">
+          <strong>Debug:</strong> {JSON.stringify(debugInfo)}
+        </div>
+      )}
       
       {/* Hero Section */}
       <HeroSlider banners={heroBanners} />
